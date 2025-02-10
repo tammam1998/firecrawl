@@ -15,7 +15,7 @@ configDotenv();
 export async function getJobs(crawlId: string, ids: string[]): Promise<PseudoJob<any>[]> {
    const [bullJobs, dbJobs] = await Promise.all([
       Promise.all(ids.map((x) => getScrapeQueue().getJob(x))).then(x => x.filter(x => x)) as Promise<(Job<any, any, string> & { id: string })[]>,
-      process.env.USE_DB_AUTHENTICATION === "true" ? await supabaseGetJobsByCrawlId(crawlId) : [],
+      []
     ]);
   
     const bullJobMap = new Map<string, PseudoJob<any>>();
@@ -60,24 +60,24 @@ export async function getJobs(crawlId: string, ids: string[]): Promise<PseudoJob
 
 export async function crawlStatusController(req: Request, res: Response) {
   try {
-    const auth = await authenticateUser(req, res, RateLimiterMode.CrawlStatus);
-    if (!auth.success) {
-      return res.status(auth.status).json({ error: auth.error });
-    }
+    // const auth = await authenticateUser(req, res, RateLimiterMode.CrawlStatus);
+    // if (!auth.success) {
+    //   return res.status(auth.status).json({ error: auth.error });
+    // }
 
-    const { team_id } = auth;
+    // const { team_id } = auth;
 
-    redisConnection.sadd("teams_using_v0", team_id)
-      .catch(error => logger.error("Failed to add team to teams_using_v0", { error, team_id }));
+    // redisConnection.sadd("teams_using_v0", team_id)
+    //   .catch(error => logger.error("Failed to add team to teams_using_v0", { error, team_id }));
 
     const sc = await getCrawl(req.params.jobId);
     if (!sc) {
       return res.status(404).json({ error: "Job not found" });
     }
 
-    if (sc.team_id !== team_id) {
-      return res.status(403).json({ error: "Forbidden" });
-    }
+    // if (sc.team_id !== team_id) {
+    //   return res.status(403).json({ error: "Forbidden" });
+    // }
     let jobIDs = await getCrawlJobs(req.params.jobId);
     let jobs = await getJobs(req.params.jobId, jobIDs);
     let jobStatuses = await Promise.all(jobs.map((x) => x.getState()));
