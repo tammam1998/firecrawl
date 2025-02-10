@@ -1,5 +1,16 @@
 name: firecrawl
 
+x-common-service: &common-service
+  build: apps/api
+  ulimits:
+    nofile:
+      soft: 65535
+      hard: 65535
+  networks:
+    - backend
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
+
 services:
   playwright-service:
     build: apps/playwright-service-ts
@@ -13,15 +24,7 @@ services:
       - backend
 
   api:
-    build: apps/api
-    ulimits:
-      nofile:
-        soft: 65535
-        hard: 65535
-    networks:
-      - backend
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    <<: *common-service
     environment:
       REDIS_URL: ${REDIS_URL:-redis://redis:6379}
       REDIS_RATE_LIMIT_URL: ${REDIS_URL:-redis://redis:6379}
@@ -55,15 +58,7 @@ services:
     command: [ "pnpm", "run", "start:production" ]
 
   worker:
-    build: apps/api
-    ulimits:
-      nofile:
-        soft: 65535
-        hard: 65535
-    networks:
-      - backend
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    <<: *common-service
     environment:
       REDIS_URL: ${REDIS_URL:-redis://redis:6379}
       REDIS_RATE_LIMIT_URL: ${REDIS_URL:-redis://redis:6379}

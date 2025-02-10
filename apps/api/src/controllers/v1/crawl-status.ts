@@ -67,7 +67,7 @@ export async function getJob(queueFunction: QueueFunction, id: string): Promise<
 export async function getJobs(queueFunction: QueueFunction, ids: string[]): Promise<PseudoJob<any>[]> {
   const [bullJobs, dbJobs] = await Promise.all([
     Promise.all(ids.map((x) => queueFunction().getJob(x))).then(x => x.filter(x => x)) as Promise<(Job<any, any, string> & { id: string })[]>,
-    process.env.USE_DB_AUTHENTICATION === "true" ? supabaseGetJobsById(ids) : [],
+    [],
   ]);
 
   const bullJobMap = new Map<string, PseudoJob<any>>();
@@ -77,9 +77,9 @@ export async function getJobs(queueFunction: QueueFunction, ids: string[]): Prom
     bullJobMap.set(job.id, job);
   }
 
-  for (const job of dbJobs) {
-    dbJobMap.set(job.job_id, job);
-  }
+  // for (const job of dbJobs) {
+  //   dbJobMap.set(job.job_id, job);
+  // }
 
   const jobs: PseudoJob<any>[] = [];
 
@@ -244,15 +244,15 @@ export async function crawlStatusController(
 
   let totalCount = jobIDs.length;
 
-  if (totalCount === 0) {
-    const x = await supabase_service
-      .from('firecrawl_jobs')
-      .select('*', { count: 'exact', head: true })
-      .eq("crawl_id", req.params.jobId)
-      .eq("success", true)
+  // if (totalCount === 0) {
+  //   const x = await supabase_service
+  //     .from('firecrawl_jobs')
+  //     .select('*', { count: 'exact', head: true })
+  //     .eq("crawl_id", req.params.jobId)
+  //     .eq("success", true)
     
-    totalCount = x.count ?? 0;
-  }
+  //   totalCount = x.count ?? 0;
+  // }
 
   res.status(200).json({
     success: true,

@@ -15,7 +15,7 @@ configDotenv();
 export async function getJobs(crawlId: string, ids: string[]): Promise<PseudoJob<any>[]> {
    const [bullJobs, dbJobs] = await Promise.all([
       Promise.all(ids.map((x) => getScrapeQueue().getJob(x))).then(x => x.filter(x => x)) as Promise<(Job<any, any, string> & { id: string })[]>,
-      []
+      [],
     ]);
   
     const bullJobMap = new Map<string, PseudoJob<any>>();
@@ -25,9 +25,9 @@ export async function getJobs(crawlId: string, ids: string[]): Promise<PseudoJob
       bullJobMap.set(job.id, job);
     }
   
-    for (const job of dbJobs) {
-      dbJobMap.set(job.job_id, job);
-    }
+    // for (const job of dbJobs) {
+    //   dbJobMap.set(job.job_id, job);
+    // }
   
     const jobs: PseudoJob<any>[] = [];
   
